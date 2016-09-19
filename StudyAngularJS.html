@@ -1,0 +1,194 @@
+<html>
+<head>
+	<title>AngularJS Study Notes</title>
+    <link href="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.1.1/css/bootstrap-combined.min.css" rel="stylesheet">
+	<script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.0.7/angular.js"></script>
+	<script src="StudyAngularJS.js"></script>
+	<style>
+		.light-gray {
+  			background-color: #f9f9f9;
+			}
+		.dark-gray {
+			background-color: #dddddd;
+			}
+	</style>
+</head>
+
+
+<body ng-app="ParentModule" >
+
+	<div>
+		<br />
+		<h1 style="color:red">Notes and Examples on AngularJS</h1>
+		<br />
+		<hr><br />
+	</div>
+	
+	<div  ng-controller="HelloCtrller">
+		<p>Say hello to: <input type="text", ng-model="name1" /></p>
+		<h4>Hello, {{name1}}!</h4>
+	</div><br />
+	
+	<div  ng-controller="GreetingCtroller">
+		<p>Say hello to: <input type="text", ng-model="name2" /></p>
+		<h4>Hello, {{getName()}}!</h4>
+	</div>
+	
+	<div>
+		<hr>
+		<ul  ng-controller="WorldCtroller">
+			<li style="font-size:16px" ng-repeat="country in countries">
+				{{country.name}} has population of {{country.population}} millions, 
+				{{worldsPercentage(country.population)|number}}% of the World's population.
+			</li><br/>
+		<p style="font-size:16px">World's population: {{population}} millions.</p>
+		</ul>
+		<hr>
+	</div>
+	
+	<div class="container" ng-module="textlimits" ng-controller="TextAreaWithLimitCtrl">
+		<span ng-class="{'text-warning':shouldWarn()}">Remaining: {{remaining()}} characters</span>
+		<div class="row">
+			<textarea rows="4" cols="60" placeholder="Your comment..." maxlength=70 ng-model="message">
+				{{message}}</textarea>
+		</div>
+		<div class="row">
+			<button ng-click="send()" ng-disabled="!hasValidLength()">Send</button>
+			<button ng-click="clear()">Clear</button>
+		</div>
+	</div><hr>
+
+	<div>	
+		<p>------------------------------------------------------</p>
+		<label style="font-size:16px">Show secret? <input type="checkbox" ng-model="showSecret"></label>
+		<p>------------------------------------------------------</p>
+		<div ng-show="showSecret">Secret Shown!</div>
+		<p>------------------------------------------------------</p>
+		<div ng-hide="showSecret">Secret Hidden!</div>
+		<p>------------------------------------------------------</p>
+		<div ng-switch on="showSecret">
+    		<div ng-switch-when="true">Secret is now showing.</div>
+    		<div ng-switch-default>Won't show you any of my secrets!</div>
+		</div>
+		<p>------------------------------------------------------</p>
+	</div><hr>
+
+	<div id="app2" ng-module="listAndDetails" ng-controller="ListAndManyDetailsCtrl">
+		<table class="table table-bordered">
+			<thead>
+			<tr>
+				<th>Name</th>	<th>e-mail</th>
+			</tr>
+			</thead>
+			<tbody 	ng-repeat="user in users" 	ng-controller="UserCtrl" 
+					ng-click="toggleSelected()" ng-switch on="isSelected()">
+			<tr>
+				<td>{{user.name}}</td>	<td>{{user.email}}</td>
+			</tr>
+			<tr ng-switch-when="true" class="light-gray">
+				<td colspan="2">{{user.desc}}</td>
+			</tr>
+			</tbody>
+		</table>
+	</div><hr>
+
+	<div ng-module="arrayFilters" ng-controller="ArrayFiltersCtrl">
+		
+		<h3>Filtering by string expression</h3>
+		<div class="well">
+			<label>Search for: <input type="text" ng-model="criteria"></label>
+		</div>
+		<table class="table table-bordered table-striped">
+			<thead>
+			<th ng-click="sort('name')">Name
+				<i ng-class="{'icon-chevron-up': isSortUp('name'), 
+						'icon-chevron-down': isSortDown('name')}"></i>
+			</th>
+			<th ng-click="sort('desc')">Description
+				<i ng-class="{'icon-chevron-up': isSortUp('desc'), 
+						'icon-chevron-down': isSortDown('desc')}"></i>
+			</th>
+			<th ng-click="sort('priority')">Priority
+				<i ng-class="{'icon-chevron-up': isSortUp('priority'), 
+						'icon-chevron-down': isSortDown('priority')}"></i>
+			</th>
+			<th ng-click="sort('estimation')">Estimation
+				<i ng-class="{'icon-chevron-up': isSortUp('estimation'), 
+						'icon-chevron-down': isSortDown('estimation')}"></i>
+			</th>
+			<th ng-click="sort('done')">Done?
+				<i ng-class="{'icon-chevron-up': isSortUp('done'), 
+						'icon-chevron-down': isSortDown('done')}"></i>
+			</th>
+			</thead>
+			<tbody>
+			<tr ng-repeat="item in filteredBacklog = (backlog | filter:criteria | orderBy:sortField:reverse) | pagination:pageNo:pageSize">
+				<td>{{item.name}}</td>
+				<td>{{item.desc}}</td>
+				<td>{{item.priority}}</td>
+				<td>{{item.estimation}}</td>
+				<td>{{item.done}}</td>
+			</tr>
+			</tbody>
+			<tfoot>
+			<tr>
+				<td colspan="5">Total: {{filteredBacklog.length}}</td>
+			</tr>
+			</tfoot>
+		</table>
+		<div class="pagination">
+			<ul>
+				<li><a ng-click="activePage(page-1)">Prev</a></li>
+				<li ng-repeat="page in pages"><a ng-click="setActivePage(page)">{{page+1}}</a></li>
+				<li><a ng-click="activePage(page+1)">Next</a></li>
+			</ul>
+		</div>
+		
+		<h3>Filtering by object expression</h3>
+		<table class="table table-bordered">
+			<thead>
+			<th>Name</th>	<th>Description</th>	<th>Priority</th>	<th>Estimation</th>	<th>Done?</th>
+			</thead>
+			<tbody>
+			<tr ng-repeat="item in filteredBacklogObj = (backlog | filter:{$: criteria, done: false})">
+				<td>{{item.name}}</td>
+				<td>{{item.desc}}</td>
+				<td>{{item.priority}}</td>
+				<td>{{item.estimation}}</td>
+				<td>{{item.done}}</td>
+			</tr>
+			</tbody>
+			<tfoot>
+			<tr>
+				<td colspan="5">Total: {{filteredBacklogObj.length}}</td>
+			</tr>
+			</tfoot>
+		</table>
+
+	</div><hr>
+
+	<div>
+		<h3>DI using inline array annotation</h3>
+		<pre>
+	var app = angular.module("DemoApp", []);
+	// Controller is injected with $scope and $http as dependencies
+	app.controller('DemoController', ['$scope', '$http', function (s, h) {
+		h.get('https://api.github.com/users/angular/repos')
+        	.success(function (repos) {
+        		s.repos = repos;
+    	});
+	}]);
+		</pre>
+		<xmp>
+	<body ng-app="DemoApp" ng-controller="DemoController">
+	<h3>Angular Github Repositories</h3>
+	<ul>
+		<li ng-repeat="repo in repos"> 
+			<a ng-href="((repo.html_url))"> ((repo.name)) </a>
+		</li>
+	</ul>
+	</body>
+		</xmp>
+	</div>
+</body>
+</html>
